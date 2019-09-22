@@ -24,9 +24,9 @@ bot.on('message', msg=>{
 
 //Rykker KurtBots briller op eller ned
 bot.on('message', msg=>{
-    if(msg.content === "!rykbrillerop" || msg.content === "!rykbrillerned"){
+    if(msg.content.toLowerCase() === "!rykbrillerop" || msg.content.toLowerCase() === "!rykbrillerned"){
         msg.reply("*click*")
-        if(msg.content === "!rykbrillerop"){
+        if(msg.content.toLowerCase() === "!rykbrillerop"){
             brillestatus = "oppe"
         }
         else{
@@ -43,15 +43,15 @@ bot.on('message', msg=>{
 })
 
 //Bruger du en IDE? Kurt græder
-bot.on('message', msg=>{
+/*bot.on('message', msg=>{
     if(msg.content.includes('IDE') || msg.content.tolowercase.includes('vscode') || msg.content.toLowerCase.includes('visual studio')|| msg.content.toLowerCase.includes('sublime')){
         msg.react("624580114390319134")
     }
-})
+})*/
 
 bot.on('message', msg =>{
-    if(msg.content.toLowerCase.includes('!hjælp')){
-        if (msg.content.content.toLowerCase.includes('scanf')){
+    if(msg.content.toLowerCase().includes('!hjælp')){
+        if (msg.content.content.toLowerCase().includes('scanf')){
             msg.reply('')
         }
     }
