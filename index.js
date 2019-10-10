@@ -105,4 +105,22 @@ bot.on('message', msg =>{
         }
     }
 })
+
+bot.on('message', msg =>{
+    if(msg.author.bot) return;
+    if(msg.content.toLowerCase() === "!føzdag"){
+        let role = msg.guild.roles.find(r => r.name === "Fødselar");
+        let member = msg.member;
+        msg.reply('Tilykke med fødselsdagen')
+        if (msg.member.roles.has(role.id)){
+            console.log("Fjerner fødselar rollen fra " + member.displayName)
+            member.removeRole(role).catch(console.error);
+        }
+        else{
+            console.log('Uddeler fødselar rollen til ' + member.displayName)
+            member.addRole(role).catch(console.error);
+        }
+    }
+})
+
 bot.login(token);
