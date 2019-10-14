@@ -9,6 +9,7 @@
   "author": "Norspang",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^11.5.1"
+    "discord.js": "^11.5.1",
+    "mysql": "^2.17.1"
   }
 }
