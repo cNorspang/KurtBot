@@ -1,18 +1,23 @@
 const Discord = require('discord.js');
 const bot = new Discord.Client();
 const token = 'NjI0MjMyODk2ODU2NzE5Mzcw.XYOAZQ.4q0FA_jfwn-uCxCdg3oDsMSns-o';
-const fs = require('fs')
+
 var mysql = require('mysql');
 
 var brillestatus = "oppe";
 var today = new Date();
-var date = (today.getDate() + '-' + today.getMonth()); 
+var month = today.getMonth() + 1
+var date = (today.getDate() + '-' + month); 
 
 var con = mysql.createConnection({
-    host: "localhost",
-    user: "root",
-    password: 'Wqw84vcs',
-    database: "users"
+    host: "remotemysql.com",
+    user: "YlQwluews0",
+    password: 'UmmLJBekxU',
+    database: "YlQwluews0"
+});
+
+con.connect(function (err) {
+    if (err) throw err;
 });
 
 console.log(date);
@@ -126,40 +131,30 @@ bot.on('message', msg =>
     if(msg.content.toLowerCase() === "!føzdag")
     {
         let role = msg.guild.roles.find(r => r.name === "Fødselar");
-
         let member = msg.member;
 
-        fs.readFile("./saveFiles/birthdays.txt", function(err, data){
-
+        con.query("SELECT name, birthday FROM users WHERE name ='" + member.displayName + "'", function(err, result){
             if (err) throw err;
 
-            if(data.includes(member.displayName))
-            {
-                msg.reply("Din fødselsdag er allerede i systemet, hvis du vil rette på din fødselsdag, skriv '!ny føzdag', og den nuværene dato vil blive gemt som fødselsdag");
-                return;
+            if (result.length === 0){
+                if(result){
+                    console.log("test");
+                    con.query("INSERT INTO users (name, birthday) VALUES ('" + member.displayName + "', '" + date + "')", function(err1, result1){
+                        if (err1) throw err1;
+
+                        con.query("SELECT name, birthday FROM users WHERE name ='" + member.displayName + "'", function (err2, result2){
+                            if (err2) throw err2;
+
+                            if (result2.length > 0){
+                                console.log("Saved the user with the name " + result2[0].name + " with the birthday " + result2[0].birthday);
+                            }
+                        }
+                )})
+                }
             }
 
-            else{
-                fs.appendFile("./saveFiles/birthdays.json", member.displayName + " - " + date + "\n", function (err) {
-                    if (err) {
-                        return console.log(err);
-                    }
-
-                    console.log("Save sucessful");
-                });
-
-                if (msg.member.roles.has(role.id)) {
-                    console.log("Fjerner fødselar rollen fra " + member.displayName)
-                    member.removeRole(role).catch(console.error);
-                }
-
-                else {
-                    msg.reply('Tilykke med fødselsdagen')
-
-                    console.log('Uddeler fødselar rollen til ' + member.displayName)
-
-                    member.addRole(role).catch(console.error);
-                }
+            else if (result.length > 0){
+                msg.reply("Your name is already saved in the database, with the birthday " + result[0].birthday)
             }
         })
     }
@@ -168,22 +163,44 @@ bot.on('message', msg =>
 bot.on('message', msg =>
 {
     if(msg.author.bot) return;
-    if(msg.content.toLowerCase() === "!sqltest");
+    const server = msg.guild;
     let role = msg.guild.roles.find(r => r.name === "Fødselar");
-    {
-        con.connect(function(err){
-            if (err) throw err;
-            con.query("SELECT name FROM users WHERE birthday = '15-9'", function(err, result){
-                if (err) throw err;
-                const server = bot.guilds.get('624233197479395328');
-                server.members.forEach(member => {if (member.user.username === result[0].name){
-                    member.addRole(role);
-                }});
+    con.query("SELECT name FROM users WHERE birthday = '" + date + "'", function(err, result){
+        //console.log(result[0].name);
+        if (err) throw err;
+        if (result.length > 0){
 
+            server.members.forEach(member => {
+                if (member.user.username === result[0].name)
+                {
+                    if(!(member.roles.find(r => r.name === 'Fødselar'))){
+                        console.log("Giver fødselsdagsrollen til " + result[0].name)
+                        member.addRole(role);
+                    }
+                }
+                
+                else{
+                    if (member.roles.find(r => r.name === 'Fødselar')){
+                    console.log("Fjerner fødselsdagsrollen fra " + member.user.username);
+                    member.removeRole(role);
+                }}
+            });
+        }
+
+        else if (result.length === 0){
+            server.members.forEach(member => {
+                if (member.roles.find(r => r.name === 'Fødselar')) {
+                    console.log("Fjerner fødselsdagsrollen fra " + member.user.username);
+                    member.removeRole(role);
+                }
             })
-        })
-    }
+        }
+        
+
+    })
+
+    
 }
-)
+) 
 
 bot.login(token);
